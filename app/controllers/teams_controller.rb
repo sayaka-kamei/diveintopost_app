@@ -15,7 +15,9 @@ class TeamsController < ApplicationController
     @team = Team.new
   end
 
-  def edit; end
+  def edit
+    redirect_to team_path(@team), notice: "リーダー以外は編集できません" unless current_user == @team.owner
+  end
 
   def create
     @team = Team.new(team_params)
@@ -39,8 +41,10 @@ class TeamsController < ApplicationController
   end
 
   def destroy
-    @team.destroy
-    redirect_to teams_url, notice: I18n.t('views.messages.delete_team')
+    if current_user.keep_team_id? || current_user.id?
+      @team.destroy
+      redirect_to teams_url, notice: I18n.t('views.messages.delete_team')
+    end
   end
 
   def dashboard
