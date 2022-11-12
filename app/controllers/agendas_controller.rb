@@ -20,6 +20,17 @@ class AgendasController < ApplicationController
       render :new
     end
   end
+  
+  def destroy
+    @agenda = Agenda.find(params[:id])
+    if current_user.id == @agenda.user.id || current_user.id == @agenda.team.owner.id
+      @agenda.destroy
+      AgendaMailer.agenda_mail(@agenda.team.members).deliver
+      redirect_to dashboard_path, notice: "アジェンダ「#{@agenda.title}」を削除しました"
+    else
+      redirect_to dashboard_url, notice: "権限がないため削除できません。"  
+    end
+  end
 
   private
 
